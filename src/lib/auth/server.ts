@@ -67,6 +67,8 @@ const env = (key: string): string | undefined => {
 // provisions auth; set it to "false" to force auth off everywhere (dev user).
 const authDisabled = env("VITE_AUTH_ENABLED") === "false";
 
+export const SESSION_TOKEN_COOKIE = "__Host-grok-auth.session_token";
+
 // Direct Google OAuth credentials for production. These are server-only.
 const googleClientId = env("GOOGLE_CLIENT_ID");
 const googleClientSecret = env("GOOGLE_CLIENT_SECRET");
@@ -118,7 +120,7 @@ const databaseUrl = env("DATABASE_URL");
 
 // Use Neon/Postgres in production when DATABASE_URL is available; otherwise
 // use the same embedded PGLite database used by the app in local/preview mode.
-const database = databaseUrl
+const authDatabase = databaseUrl
   ? new Pool({ connectionString: databaseUrl })
   : { dialect: pgliteDialect(() => getPglite()), type: "postgres" as const };
 
@@ -141,7 +143,7 @@ export const auth = betterAuth({
   // Deployed apps inject BETTER_AUTH_SECRET. Preview: process-stable secret on
   // globalThis so HMR doesn't invalidate PGLite-backed sessions (see above).
   secret: env("BETTER_AUTH_SECRET") ?? previewAuthSecret(),
-  database,
+  database: authDatabase,
 
   // CSRF / origin check for credentialed auth POSTs (email sign-up/sign-in, …).
   // See `trustedOrigins` construction above — must cover live preview hosts AND

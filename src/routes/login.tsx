@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GROK_PROVIDERS, authEnabled, signIn } from "@/lib/auth/client";
+import { AUTH_PROVIDERS, authEnabled, signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 
 type LoginSearch = { next?: string };
@@ -28,7 +28,7 @@ function Login() {
         </p>
         <div className="mt-6 space-y-3">
           {authEnabled ? (
-            GROK_PROVIDERS.map((p) => (
+            AUTH_PROVIDERS.map((p) => (
               <Button
                 key={p.providerId}
                 type="button"

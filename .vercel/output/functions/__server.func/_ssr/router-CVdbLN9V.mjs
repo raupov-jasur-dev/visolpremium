@@ -1,0 +1,645 @@
+import { o as __toESM } from "../_runtime.mjs";
+import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
+import { s as require_jsx_runtime } from "../_libs/@react-three/fiber+[...].mjs";
+import { _ as createRootRoute, d as HeadContent, g as createFileRoute, h as lazyRouteComponent, m as Outlet, p as createRouter, u as Scripts, v as Link, x as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
+import { n as __exportAll } from "./ssr.mjs";
+import { c as getTemplate, o as getCategory } from "./templates-BLAaodcN.mjs";
+import { F as string, I as union, M as object, j as number, k as literal } from "../_libs/@better-auth/core+[...].mjs";
+import { n as auth } from "./server-C3cAiqV9.mjs";
+import { t as getInvitationPublic } from "./invitations-F3zlG6S1.mjs";
+import { o as TriangleAlert } from "../_libs/lucide-react.mjs";
+import { t as Toaster } from "../_libs/sonner.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CVdbLN9V.js
+var import_react = /* @__PURE__ */ __toESM(require_react());
+var import_jsx_runtime = require_jsx_runtime();
+function AppErrorComponent({ error }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
+		className: "relative flex min-h-screen flex-col items-center justify-center gap-4 overflow-hidden bg-ivory px-6 text-center text-ink",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "pointer-events-none absolute inset-0 opacity-70",
+			style: {
+				backgroundImage: "url(/images/hero/silk-ivory.jpg)",
+				backgroundSize: "cover",
+				backgroundPosition: "center"
+			}
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "relative z-10 max-w-md rounded-3xl bg-ivory/85 p-8 shadow-[0_20px_60px_-24px_rgba(44,31,26,0.4)]",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-burgundy",
+					"aria-hidden": true,
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, {
+						className: "mx-auto size-10",
+						strokeWidth: 1.6
+					})
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+					className: "mt-3 font-display text-3xl",
+					children: "Nimadir noto'g'ri ketdi"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-sm break-words text-muted",
+					children: error.message || "Kutilmagan xatolik yuz berdi. Sahifani yangilab ko'ring."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+					to: "/",
+					className: "mt-6 inline-flex h-12 items-center rounded-full bg-burgundy px-6 text-sm text-ivory",
+					children: "Bosh sahifaga qaytish"
+				})
+			]
+		})]
+	});
+}
+/**
+* App-wide client provider mounted once near the root (in `src/routes/__root.tsx`):
+*
+*   <AuthProvider><Outlet /></AuthProvider>
+*
+* Better Auth's React client (`@/lib/auth/client`) needs NO context provider —
+* its `useSession()` works standalone — so this is a passthrough today. It's
+* kept as the single, stable mount point for any future client-side providers
+* (e.g. a toast or theme provider) without churning the root shell.
+*/
+function AuthProvider({ children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
+}
+function isGrokEmbedderOrigin(origin) {
+	try {
+		const url = new URL(origin);
+		if (url.protocol !== "https:" && url.protocol !== "http:") return false;
+		const host = url.hostname.toLowerCase();
+		if (host === "grok.com" || host.endsWith(".grok.com")) return true;
+		if (host === "localhost" || host === "127.0.0.1" || host === "[::1]") return true;
+		return false;
+	} catch {
+		return false;
+	}
+}
+function isSandboxPreviewGuestHost(hostname) {
+	const host = hostname.toLowerCase();
+	return host === "grok-sandbox.com" || host.endsWith(".grok-sandbox.com");
+}
+function isRemintPreviewPair(guestHost, parentHost) {
+	const guest = guestHost.toLowerCase();
+	const parent = parentHost.toLowerCase();
+	const i = guest.indexOf(".preview.");
+	if (i <= 0) return false;
+	const label = guest.slice(0, i);
+	const rest = guest.slice(i + 9);
+	if (label.includes(".") || !rest.includes(".")) return false;
+	return parent === rest || parent === `grok.${rest}`;
+}
+function resolveParentEmbedderOrigin(parentIsSelf, referrer, ancestorOrigin, guestHostname = "") {
+	if (parentIsSelf) return null;
+	for (const candidate of [referrer, ancestorOrigin ?? ""].filter(Boolean)) try {
+		const url = new URL(candidate.includes("://") ? candidate : `https://${candidate}`);
+		if (url.protocol !== "https:" && url.protocol !== "http:") continue;
+		if (isGrokEmbedderOrigin(url.origin)) return url.origin;
+		if (isSandboxPreviewGuestHost(guestHostname) || isRemintPreviewPair(guestHostname, url.hostname)) return url.origin;
+	} catch {}
+	return null;
+}
+/**
+* Guest side of the grok-web ↔ sandbox preview postMessage bridge.
+*
+* Activates only when this page is framed by an allowlisted Grok embedder.
+* Top-level runs (download/export, local `npm run dev`, deployed sites) noop.
+*/
+var PREVIEW_BRIDGE_CHANNEL = "grok-preview-bridge";
+var EnvelopeSchema = object({
+	channel: literal(PREVIEW_BRIDGE_CHANNEL),
+	version: number().int().positive(),
+	type: string().min(1)
+});
+var HelloSchema = EnvelopeSchema.extend({ type: literal("hello") });
+var NavigateSchema = EnvelopeSchema.extend({
+	type: literal("navigate"),
+	path: string().min(1)
+});
+var HistorySchema = EnvelopeSchema.extend({
+	type: literal("history"),
+	delta: union([literal(-1), literal(1)])
+});
+function isSafeBridgePath(path) {
+	if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return false;
+	try {
+		return new URL(path, "https://preview.invalid").origin === "https://preview.invalid";
+	} catch {
+		return false;
+	}
+}
+/**
+* Install host↔guest messaging. Returns a dispose function.
+* Noops (returns a no-op dispose) when not embedded under a Grok parent.
+*/
+function installPreviewHostBridge(options = {}) {
+	if (typeof window === "undefined") return () => {};
+	const ancestorOrigin = typeof location.ancestorOrigins !== "undefined" && location.ancestorOrigins.length > 0 ? location.ancestorOrigins[0] : null;
+	const parentOrigin = resolveParentEmbedderOrigin(window.parent === window, document.referrer, ancestorOrigin, window.location.hostname);
+	if (parentOrigin === null) return () => {};
+	const ROOT_STATE_KEY = "__grokPreviewBridgeRoot";
+	const originalPushState = window.history.pushState.bind(window.history);
+	const originalReplaceState = window.history.replaceState.bind(window.history);
+	const isAtHistoryRoot = () => {
+		const state = window.history.state;
+		return Boolean(state && typeof state === "object" && state[ROOT_STATE_KEY] === true);
+	};
+	try {
+		const current = window.history.state;
+		if (!(current !== null && typeof current === "object" && Object.prototype.hasOwnProperty.call(current, ROOT_STATE_KEY))) {
+			const isRoot = window.history.length <= 1;
+			originalReplaceState(current && typeof current === "object" ? {
+				...current,
+				[ROOT_STATE_KEY]: isRoot
+			} : { [ROOT_STATE_KEY]: isRoot }, "", window.location.href);
+		}
+	} catch {}
+	const post = (message) => {
+		window.parent.postMessage(message, parentOrigin);
+	};
+	const reportLocation = () => {
+		post({
+			channel: PREVIEW_BRIDGE_CHANNEL,
+			version: 1,
+			type: "location",
+			path: window.location.pathname || "/",
+			search: window.location.search,
+			hash: window.location.hash
+		});
+	};
+	const reportRoutes = () => {
+		const paths = options.getRoutePaths?.() ?? [];
+		post({
+			channel: PREVIEW_BRIDGE_CHANNEL,
+			version: 1,
+			type: "routes",
+			paths
+		});
+	};
+	const defaultNavigate = (path) => {
+		if (!isSafeBridgePath(path)) return;
+		try {
+			const url = new URL(path, window.location.origin);
+			if (url.origin !== window.location.origin) return;
+			const next = `${url.pathname}${url.search}${url.hash}`;
+			window.history.pushState(window.history.state, "", next);
+			window.dispatchEvent(new PopStateEvent("popstate", { state: window.history.state }));
+		} catch {}
+	};
+	const navigate = (path) => {
+		if (!isSafeBridgePath(path)) return;
+		if (options.navigate) {
+			options.navigate(path);
+			return;
+		}
+		defaultNavigate(path);
+	};
+	const announce = () => {
+		reportLocation();
+		reportRoutes();
+		post({
+			channel: PREVIEW_BRIDGE_CHANNEL,
+			version: 1,
+			type: "ready"
+		});
+	};
+	const onMessage = (event) => {
+		if (event.source !== window.parent) return;
+		if (event.origin !== parentOrigin) return;
+		const envelope = EnvelopeSchema.safeParse(event.data);
+		if (!envelope.success || envelope.data.version !== 1) return;
+		if (envelope.data.type === "hello") {
+			if (!HelloSchema.safeParse(event.data).success) return;
+			announce();
+			return;
+		}
+		if (envelope.data.type === "navigate") {
+			const parsed = NavigateSchema.safeParse(event.data);
+			if (!parsed.success) return;
+			navigate(parsed.data.path);
+			queueMicrotask(reportLocation);
+			return;
+		}
+		if (envelope.data.type === "history") {
+			const parsed = HistorySchema.safeParse(event.data);
+			if (!parsed.success) return;
+			if (parsed.data.delta === -1 && isAtHistoryRoot()) return;
+			window.history.go(parsed.data.delta);
+		}
+	};
+	const onPopState = () => {
+		reportLocation();
+	};
+	const onHashChange = () => {
+		reportLocation();
+	};
+	window.history.pushState = (data, unused, url) => {
+		const next = data && typeof data === "object" ? {
+			...data,
+			[ROOT_STATE_KEY]: false
+		} : data;
+		originalPushState(next, unused, url);
+		reportLocation();
+	};
+	window.history.replaceState = (data, unused, url) => {
+		const next = isAtHistoryRoot() ? {
+			...data && typeof data === "object" ? data : {},
+			[ROOT_STATE_KEY]: true
+		} : data;
+		originalReplaceState(next, unused, url);
+		reportLocation();
+	};
+	window.addEventListener("message", onMessage);
+	window.addEventListener("popstate", onPopState);
+	window.addEventListener("hashchange", onHashChange);
+	announce();
+	return () => {
+		window.removeEventListener("message", onMessage);
+		window.removeEventListener("popstate", onPopState);
+		window.removeEventListener("hashchange", onHashChange);
+		window.history.pushState = originalPushState;
+		window.history.replaceState = originalReplaceState;
+	};
+}
+/** Collect static path patterns from a TanStack route tree (best-effort). */
+function collectRoutePathsFromTree(routeTree) {
+	const paths = /* @__PURE__ */ new Set();
+	const walk = (node) => {
+		if (!node || typeof node !== "object") return;
+		const record = node;
+		const full = typeof record.fullPath === "string" ? record.fullPath : typeof record.path === "string" ? record.path : null;
+		if (full !== null && full !== "") paths.add(full.startsWith("/") ? full : `/${full}`);
+		else if (full === "") paths.add("/");
+		const children = record.children;
+		if (Array.isArray(children)) for (const child of children) walk(child);
+		else if (children && typeof children === "object") for (const child of Object.values(children)) walk(child);
+	};
+	walk(routeTree);
+	return [...paths];
+}
+/**
+* Mount once in `__root.tsx` so the Grok preview chrome can drive navigation
+* (and later receive registered routes). Noops when the app is not embedded.
+*/
+function PreviewHostBridge() {
+	const router = useRouter();
+	(0, import_react.useEffect)(() => {
+		return installPreviewHostBridge({
+			navigate: (path) => {
+				router.history.push(path);
+			},
+			getRoutePaths: () => collectRoutePathsFromTree(router.routeTree)
+		});
+	}, [router]);
+	return null;
+}
+/**
+* Lenis smooth scroll + GSAP ScrollTrigger sinxroni.
+* reduced-motion yoqilgan bo'lsa, oddiy brauzer scroll qoladi.
+*/
+function SmoothScroll({ children }) {
+	(0, import_react.useEffect)(() => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+		let cleanup;
+		let cancelled = false;
+		(async () => {
+			const [{ default: Lenis }, gsapMod] = await Promise.all([import("../_libs/lenis.mjs").then((n) => n.t), import("../_libs/gsap.mjs").then((n) => n.t)]);
+			const { ScrollTrigger } = await import("../_libs/gsap.mjs").then((n) => n.n);
+			if (cancelled) return;
+			const gsap = gsapMod.default;
+			gsap.registerPlugin(ScrollTrigger);
+			const lenis = new Lenis({
+				autoRaf: false,
+				smoothWheel: true,
+				lerp: .085
+			});
+			lenis.on("scroll", ScrollTrigger.update);
+			const onTick = (time) => {
+				lenis.raf(time * 1e3);
+			};
+			gsap.ticker.add(onTick);
+			gsap.ticker.lagSmoothing(0);
+			cleanup = () => {
+				gsap.ticker.remove(onTick);
+				lenis.destroy();
+				ScrollTrigger.getAll().forEach((t) => t.kill());
+			};
+		})();
+		return () => {
+			cancelled = true;
+			cleanup?.();
+		};
+	}, []);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
+}
+/** Desktop uchun nozik oltin nuqta. Mobile va reduced-motion da o'chadi. */
+function GoldCursor() {
+	const ref = (0, import_react.useRef)(null);
+	(0, import_react.useEffect)(() => {
+		const el = ref.current;
+		if (!el) return;
+		const fine = window.matchMedia("(pointer: fine)").matches;
+		const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		if (!fine || reduce) {
+			el.style.display = "none";
+			return;
+		}
+		const move = (e) => {
+			el.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+		};
+		window.addEventListener("pointermove", move, { passive: true });
+		return () => window.removeEventListener("pointermove", move);
+	}, []);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		ref,
+		className: "custom-cursor",
+		"aria-hidden": true
+	});
+}
+var styles_default = "/assets/styles-CKckLML3.css";
+var APP_NAME = "VisolPremium";
+var Route$17 = createRootRoute({
+	head: () => ({
+		meta: [
+			{ charSet: "utf-8" },
+			{
+				name: "viewport",
+				content: "width=device-width, initial-scale=1"
+			},
+			{ title: "VisolPremium — Premium taklifnomalar va tabriknomalar" },
+			{
+				name: "description",
+				content: "VisolPremium — to'y, tug'ilgan kun va tabrik uchun premium raqamli taklifnomalar. 3D dizayn, video tabrik va shaxsiy havola."
+			},
+			{
+				name: "apple-mobile-web-app-title",
+				content: APP_NAME
+			},
+			{
+				name: "theme-color",
+				content: "#6B2D3C"
+			},
+			{
+				name: "twitter:card",
+				content: "summary_large_image"
+			},
+			{
+				property: "og:title",
+				content: "VisolPremium — Premium taklifnomalar va tabriknomalar"
+			},
+			{
+				property: "og:description",
+				content: "Har bir lahza o'z hikoyasiga loyiq. Premium raqamli taklifnomalar studiyasi."
+			},
+			{
+				property: "og:type",
+				content: "website"
+			},
+			{
+				property: "og:locale",
+				content: "uz_UZ"
+			},
+			...[],
+			...[]
+		],
+		links: [
+			{
+				rel: "icon",
+				type: "image/svg+xml",
+				href: "/favicon.svg"
+			},
+			{
+				rel: "stylesheet",
+				href: styles_default
+			},
+			{
+				rel: "manifest",
+				href: "/__grok/manifest.webmanifest"
+			},
+			{
+				rel: "apple-touch-icon",
+				href: "/__grok/icon-180.png"
+			},
+			{
+				rel: "stylesheet",
+				href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Outfit:wght@300;400;500;600&display=swap"
+			}
+		]
+	}),
+	component: () => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("html", {
+		lang: "uz",
+		className: "antialiased",
+		suppressHydrationWarning: true,
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("head", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeadContent, {}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("body", {
+			className: "bg-ivory text-ink",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewHostBridge, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AuthProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SmoothScroll, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {}) }) }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(GoldCursor, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
+					position: "top-center",
+					toastOptions: { className: "font-sans !bg-ivory !text-ink !border-gold/30" }
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Scripts, {})
+			]
+		})]
+	})
+});
+var $$splitComponentImporter$15 = () => import("./routes-DUzvTaeW.mjs");
+var Route$16 = createFileRoute("/")({
+	component: lazyRouteComponent($$splitComponentImporter$15, "component"),
+	head: () => ({ meta: [{ title: "VisolPremium — Premium taklifnomalar va tabriknomalar" }] })
+});
+var $$splitComponentImporter$14 = () => import("../_-DKqQPLUu.mjs");
+var Route$15 = createFileRoute("/$")({ component: lazyRouteComponent($$splitComponentImporter$14, "component") });
+var $$splitComponentImporter$13 = () => import("./boglanish-DHIta6aI.mjs");
+var Route$14 = createFileRoute("/boglanish")({
+	component: lazyRouteComponent($$splitComponentImporter$13, "component"),
+	head: () => ({ meta: [{ title: "Bog'lanish — VisolPremium" }] })
+});
+var $$splitComponentImporter$12 = () => import("./faq-BPTydM1E.mjs");
+var Route$13 = createFileRoute("/faq")({
+	component: lazyRouteComponent($$splitComponentImporter$12, "component"),
+	head: () => ({ meta: [{ title: "FAQ — VisolPremium" }] })
+});
+var $$splitComponentImporter$11 = () => import("./login-NYYDDRZu.mjs");
+var Route$12 = createFileRoute("/login")({
+	validateSearch: (s) => ({ next: typeof s.next === "string" ? s.next : "/" }),
+	component: lazyRouteComponent($$splitComponentImporter$11, "component"),
+	head: () => ({ meta: [{ title: "Kirish — VisolPremium" }] })
+});
+var $$splitComponentImporter$10 = () => import("./maxfiylik-BZ2ehip9.mjs");
+var Route$11 = createFileRoute("/maxfiylik")({
+	component: lazyRouteComponent($$splitComponentImporter$10, "component"),
+	head: () => ({ meta: [{ title: "Maxfiylik — VisolPremium" }] })
+});
+var $$splitComponentImporter$9 = () => import("./mening-taklifnomalarim-BRPWynr3.mjs");
+var Route$10 = createFileRoute("/mening-taklifnomalarim")({
+	component: lazyRouteComponent($$splitComponentImporter$9, "component"),
+	head: () => ({ meta: [{ title: "Mening taklifnomalarim — VisolPremium" }] })
+});
+var $$splitComponentImporter$8 = () => import("./narxlar-BzTHkv2v.mjs");
+var Route$9 = createFileRoute("/narxlar")({
+	component: lazyRouteComponent($$splitComponentImporter$8, "component"),
+	head: () => ({ meta: [{ title: "Narxlar — VisolPremium" }] })
+});
+var $$splitComponentImporter$7 = () => import("./qanday-ishlaydi-B41c9IhJ.mjs");
+var Route$8 = createFileRoute("/qanday-ishlaydi")({
+	component: lazyRouteComponent($$splitComponentImporter$7, "component"),
+	head: () => ({ meta: [{ title: "Qanday ishlaydi? — VisolPremium" }] })
+});
+var $$splitComponentImporter$6 = () => import("./shartlar-Bl-JrowF.mjs");
+var Route$7 = createFileRoute("/shartlar")({
+	component: lazyRouteComponent($$splitComponentImporter$6, "component"),
+	head: () => ({ meta: [{ title: "Shartlar — VisolPremium" }] })
+});
+var $$splitComponentImporter$5 = () => import("../_templateId-CfTt4eRB.mjs");
+var Route$6 = createFileRoute("/create/$templateId")({
+	component: lazyRouteComponent($$splitComponentImporter$5, "component"),
+	head: ({ params }) => {
+		return { meta: [{ title: `${getTemplate(params.templateId)?.title ?? "Yaratish"} — VisolPremium` }] };
+	}
+});
+var $$splitComponentImporter$4 = () => import("../_slug-DqIoazji.mjs");
+var Route$5 = createFileRoute("/dizayn/$slug")({ component: lazyRouteComponent($$splitComponentImporter$4, "component") });
+var $$splitComponentImporter$3 = () => import("../_id-D09PKrCl.mjs");
+var Route$4 = createFileRoute("/invitation/$id")({
+	loader: async ({ params }) => {
+		return { row: await getInvitationPublic({ data: params.id }) };
+	},
+	component: lazyRouteComponent($$splitComponentImporter$3, "component"),
+	head: ({ loaderData }) => ({ meta: [{ title: loaderData?.row ? `${loaderData.row.title} — VisolPremium` : "Taklifnoma topilmadi — VisolPremium" }] })
+});
+var $$splitComponentImporter$2 = () => import("../_id-D8ZhZyq4.mjs");
+var Route$3 = createFileRoute("/preview/$id")({
+	component: lazyRouteComponent($$splitComponentImporter$2, "component"),
+	head: () => ({ meta: [{ title: "Ko'rish — VisolPremium" }] })
+});
+var $$splitComponentImporter$1 = () => import("./templates-DhSzMfyD.mjs");
+var Route$2 = createFileRoute("/templates/")({
+	component: lazyRouteComponent($$splitComponentImporter$1, "component"),
+	head: () => ({ meta: [{ title: "Dizaynlar — VisolPremium" }] })
+});
+var $$splitComponentImporter = () => import("../_category-8WFv4DqP.mjs");
+var Route$1 = createFileRoute("/templates/$category")({
+	component: lazyRouteComponent($$splitComponentImporter, "component"),
+	head: ({ params }) => {
+		return { meta: [{ title: `${getCategory(params.category)?.title ?? "Katalog"} — VisolPremium` }] };
+	}
+});
+var Route = createFileRoute("/api/auth/$")({ server: { handlers: {
+	GET: ({ request }) => auth.handler(request),
+	POST: ({ request }) => auth.handler(request)
+} } });
+var IndexRoute = Route$16.update({
+	id: "/",
+	path: "/",
+	getParentRoute: () => Route$17
+});
+var SplatRoute = Route$15.update({
+	id: "/$",
+	path: "/$",
+	getParentRoute: () => Route$17
+});
+var BoglanishRoute = Route$14.update({
+	id: "/boglanish",
+	path: "/boglanish",
+	getParentRoute: () => Route$17
+});
+var FaqRoute = Route$13.update({
+	id: "/faq",
+	path: "/faq",
+	getParentRoute: () => Route$17
+});
+var LoginRoute = Route$12.update({
+	id: "/login",
+	path: "/login",
+	getParentRoute: () => Route$17
+});
+var MaxfiylikRoute = Route$11.update({
+	id: "/maxfiylik",
+	path: "/maxfiylik",
+	getParentRoute: () => Route$17
+});
+var MeningTaklifnomalarimRoute = Route$10.update({
+	id: "/mening-taklifnomalarim",
+	path: "/mening-taklifnomalarim",
+	getParentRoute: () => Route$17
+});
+var NarxlarRoute = Route$9.update({
+	id: "/narxlar",
+	path: "/narxlar",
+	getParentRoute: () => Route$17
+});
+var QandayIshlaydiRoute = Route$8.update({
+	id: "/qanday-ishlaydi",
+	path: "/qanday-ishlaydi",
+	getParentRoute: () => Route$17
+});
+var ShartlarRoute = Route$7.update({
+	id: "/shartlar",
+	path: "/shartlar",
+	getParentRoute: () => Route$17
+});
+var CreateTemplateIdRoute = Route$6.update({
+	id: "/create/$templateId",
+	path: "/create/$templateId",
+	getParentRoute: () => Route$17
+});
+var DizaynSlugRoute = Route$5.update({
+	id: "/dizayn/$slug",
+	path: "/dizayn/$slug",
+	getParentRoute: () => Route$17
+});
+var InvitationIdRoute = Route$4.update({
+	id: "/invitation/$id",
+	path: "/invitation/$id",
+	getParentRoute: () => Route$17
+});
+var PreviewIdRoute = Route$3.update({
+	id: "/preview/$id",
+	path: "/preview/$id",
+	getParentRoute: () => Route$17
+});
+var TemplatesIndexRoute = Route$2.update({
+	id: "/templates/",
+	path: "/templates/",
+	getParentRoute: () => Route$17
+});
+var rootRouteChildren = {
+	IndexRoute,
+	SplatRoute,
+	BoglanishRoute,
+	FaqRoute,
+	LoginRoute,
+	MaxfiylikRoute,
+	MeningTaklifnomalarimRoute,
+	NarxlarRoute,
+	QandayIshlaydiRoute,
+	ShartlarRoute,
+	CreateTemplateIdRoute,
+	DizaynSlugRoute,
+	InvitationIdRoute,
+	PreviewIdRoute,
+	TemplatesCategoryRoute: Route$1.update({
+		id: "/templates/$category",
+		path: "/templates/$category",
+		getParentRoute: () => Route$17
+	}),
+	TemplatesIndexRoute,
+	ApiAuthSplatRoute: Route.update({
+		id: "/api/auth/$",
+		path: "/api/auth/$",
+		getParentRoute: () => Route$17
+	})
+};
+var routeTree = Route$17._addFileChildren(rootRouteChildren)._addFileTypes();
+var router_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
+function getRouter() {
+	return createRouter({
+		routeTree,
+		defaultErrorComponent: AppErrorComponent
+	});
+}
+//#endregion
+export { Route$5 as a, Route$4 as i, Route$1 as n, Route$6 as o, Route$3 as r, Route$12 as s, router_exports as t };

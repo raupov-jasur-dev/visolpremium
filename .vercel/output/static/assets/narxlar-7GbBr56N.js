@@ -1,0 +1,1 @@
+import{n as e}from"./with-selector-B3kjeGa9.js";import{c as t}from"./sections-DbWYpB-9.js";import{t as n}from"./page-shell-YVMCd_aX.js";var r=e(),i=()=>(0,r.jsx)(n,{children:(0,r.jsx)(t,{})});export{i as component};

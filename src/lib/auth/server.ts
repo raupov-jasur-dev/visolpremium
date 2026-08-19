@@ -116,6 +116,12 @@ const trustedOrigins: string[] = explicitBaseURL
 
 const databaseUrl = env("DATABASE_URL");
 
+// Use Neon/Postgres in production when DATABASE_URL is available; otherwise
+// use the same embedded PGLite database used by the app in local/preview mode.
+const database = databaseUrl
+  ? new Pool({ connectionString: databaseUrl })
+  : { dialect: pgliteDialect(() => getPglite()), type: "postgres" as const };
+
 // Better Auth native Google OAuth. No Grok auth broker is required.
 const googleProvider =
   authConfigured && googleClientId && googleClientSecret

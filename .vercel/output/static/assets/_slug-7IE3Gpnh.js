@@ -1,0 +1,1 @@
+import{n as e}from"./with-selector-B3kjeGa9.js";import{t}from"./useNavigate-BGVgdckm.js";import{i as n}from"./index-eAxuolON.js";var r=e();function i(){let{slug:e}=n.useParams();return(0,r.jsx)(t,{to:`/invitation/$id`,params:{id:e}})}export{i as component};

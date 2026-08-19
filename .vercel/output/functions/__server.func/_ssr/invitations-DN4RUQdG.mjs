@@ -1,0 +1,159 @@
+import { i as createServerFn, t as TSS_SERVER_FUNCTION } from "./ssr.mjs";
+import { c as getSql, i as authMiddleware, l as getTemplate, u as invitationTitle } from "./templates-DNtH5Uvn.mjs";
+import { t as nanoid } from "../_libs/nanoid.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/invitations-DN4RUQdG.js
+var createServerRpc = (serverFnMeta, splitImportFn) => {
+	const url = "/_serverFn/" + serverFnMeta.id;
+	return Object.assign(splitImportFn, {
+		url,
+		serverFnMeta,
+		[TSS_SERVER_FUNCTION]: true
+	});
+};
+/** Taklifnoma uchun qisqa, URL-ga mos unikal id. */
+function newInvitationId() {
+	return nanoid(10);
+}
+/**
+* O'zbekcha ismlarni URL slugiga aylantiradi.
+* Masalan: "Sardor Madina" → "sardor-madina"
+*/
+function toSlug(input) {
+	return input.toLowerCase().replace(/[ʻʼ''`‘’]/g, "").replace(/o['ʻ]/g, "o").replace(/g['ʻ]/g, "g").replace(/sh/g, "sh").replace(/ch/g, "ch").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "taklifnoma";
+}
+function uniqueSlug(base) {
+	return `${toSlug(base)}-${nanoid(4).toLowerCase()}`;
+}
+function parseData(raw) {
+	if (raw && typeof raw === "object") return raw;
+	if (typeof raw === "string") try {
+		return JSON.parse(raw);
+	} catch {
+		return {};
+	}
+	return {};
+}
+function mapInvitation(row) {
+	return {
+		id: row.id,
+		slug: row.slug,
+		userId: row.user_id,
+		templateId: row.template_id,
+		title: row.title,
+		data: parseData(row.data),
+		published: row.published,
+		createdAt: typeof row.created_at === "string" ? row.created_at : new Date(row.created_at).toISOString(),
+		updatedAt: typeof row.updated_at === "string" ? row.updated_at : new Date(row.updated_at).toISOString()
+	};
+}
+var saveInvitation_createServerFn_handler = createServerRpc({
+	id: "e3d1301036a3085a7598866727fc1f4acb7e3edead5ae799cb1c220b171e845f",
+	name: "saveInvitation",
+	filename: "src/lib/invitations.ts"
+}, (opts) => saveInvitation.__executeServer(opts));
+var saveInvitation = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator((input) => input).handler(saveInvitation_createServerFn_handler, async ({ context, data: input }) => {
+	const template = getTemplate(input.templateId);
+	if (!template) throw new Error("Shablon topilmadi.");
+	const sql = await getSql();
+	const title = invitationTitle(template, input.data);
+	const payload = JSON.stringify(input.data);
+	if (input.id) {
+		if (!(await sql`
+        select * from invitations where id = ${input.id} and user_id = ${context.userId}
+      `)[0]) throw new Error("Taklifnoma topilmadi yoki sizga tegishli emas.");
+		return mapInvitation((await sql`
+        update invitations
+        set data = ${payload}::jsonb,
+            title = ${title},
+            template_id = ${input.templateId},
+            updated_at = now()
+        where id = ${input.id} and user_id = ${context.userId}
+        returning *
+      `)[0]);
+	}
+	return mapInvitation((await sql`
+      insert into invitations (id, slug, user_id, template_id, title, data, published)
+      values (${newInvitationId()}, ${uniqueSlug(typeof input.data.groom === "string" && typeof input.data.bride === "string" ? `${input.data.groom} ${input.data.bride}` : typeof input.data.honoree === "string" ? input.data.honoree : typeof input.data.title === "string" ? input.data.title : template.id)}, ${context.userId}, ${input.templateId}, ${title}, ${payload}::jsonb, true)
+      returning *
+    `)[0]);
+});
+var listMyInvitations_createServerFn_handler = createServerRpc({
+	id: "99a460901d7591dc92014e40fe05489256f0374d60e14c9460c18b9a524a8185",
+	name: "listMyInvitations",
+	filename: "src/lib/invitations.ts"
+}, (opts) => listMyInvitations.__executeServer(opts));
+var listMyInvitations = createServerFn({ method: "GET" }).middleware([authMiddleware]).handler(listMyInvitations_createServerFn_handler, async ({ context }) => {
+	return (await (await getSql())`
+      select * from invitations where user_id = ${context.userId} order by updated_at desc
+    `).map(mapInvitation);
+});
+var getInvitationPublic_createServerFn_handler = createServerRpc({
+	id: "fa63199c0f02669be40c861e1f4bf9d0dccc13f7cf6203e871b4d3effbfc0694",
+	name: "getInvitationPublic",
+	filename: "src/lib/invitations.ts"
+}, (opts) => getInvitationPublic.__executeServer(opts));
+var getInvitationPublic = createServerFn({ method: "GET" }).validator((idOrSlug) => idOrSlug).handler(getInvitationPublic_createServerFn_handler, async ({ data: idOrSlug }) => {
+	const rows = await (await getSql())`
+      select * from invitations
+      where (id = ${idOrSlug} or slug = ${idOrSlug}) and published = true
+      limit 1
+    `;
+	if (!rows[0]) return null;
+	return mapInvitation(rows[0]);
+});
+var getMyInvitation_createServerFn_handler = createServerRpc({
+	id: "6a94136024c19c574251214c672a4a4e372f5503eb87d64572c0cec0398a1b1c",
+	name: "getMyInvitation",
+	filename: "src/lib/invitations.ts"
+}, (opts) => getMyInvitation.__executeServer(opts));
+var getMyInvitation = createServerFn({ method: "GET" }).middleware([authMiddleware]).validator((id) => id).handler(getMyInvitation_createServerFn_handler, async ({ context, data: id }) => {
+	const rows = await (await getSql())`
+      select * from invitations where id = ${id} and user_id = ${context.userId} limit 1
+    `;
+	if (!rows[0]) return null;
+	return mapInvitation(rows[0]);
+});
+var submitRsvp_createServerFn_handler = createServerRpc({
+	id: "0f4911293d06bd8e2dd524443e53108dd4eac59ec7f43082f04f260a18bfe7c9",
+	name: "submitRsvp",
+	filename: "src/lib/invitations.ts"
+}, (opts) => submitRsvp.__executeServer(opts));
+var submitRsvp = createServerFn({ method: "POST" }).validator((input) => input).handler(submitRsvp_createServerFn_handler, async ({ data: input }) => {
+	const name = input.guestName.trim();
+	if (name.length < 2) throw new Error("Ismingizni kiriting.");
+	const sql = await getSql();
+	if (!(await sql`
+      select id from invitations where id = ${input.invitationId} and published = true
+    `)[0]) throw new Error("Taklifnoma topilmadi.");
+	const id = newInvitationId();
+	const count = Math.min(20, Math.max(1, Math.round(input.guestsCount || 1)));
+	await sql`
+      insert into rsvps (id, invitation_id, guest_name, attending, guests_count, message)
+      values (${id}, ${input.invitationId}, ${name}, ${input.attending}, ${count}, ${input.message ?? null})
+    `;
+	return { ok: true };
+});
+var listRsvps_createServerFn_handler = createServerRpc({
+	id: "e4b88794dfae7e472dfb585e8818178758c282801b3b848af3cf1378f3fe1dd7",
+	name: "listRsvps",
+	filename: "src/lib/invitations.ts"
+}, (opts) => listRsvps.__executeServer(opts));
+var listRsvps = createServerFn({ method: "GET" }).middleware([authMiddleware]).validator((invitationId) => invitationId).handler(listRsvps_createServerFn_handler, async ({ context, data: invitationId }) => {
+	const sql = await getSql();
+	if (!(await sql`
+      select id from invitations where id = ${invitationId} and user_id = ${context.userId}
+    `)[0]) throw new Error("Ruxsat yo'q.");
+	return (await sql`
+      select * from rsvps where invitation_id = ${invitationId} order by created_at desc
+    `).map((r) => ({
+		id: r.id,
+		invitationId: r.invitation_id,
+		guestName: r.guest_name,
+		attending: r.attending,
+		guestsCount: r.guests_count,
+		message: r.message,
+		createdAt: typeof r.created_at === "string" ? r.created_at : new Date(r.created_at).toISOString()
+	}));
+});
+//#endregion
+export { getInvitationPublic_createServerFn_handler, getMyInvitation_createServerFn_handler, listMyInvitations_createServerFn_handler, listRsvps_createServerFn_handler, saveInvitation_createServerFn_handler, submitRsvp_createServerFn_handler };

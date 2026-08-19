@@ -1,0 +1,179 @@
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-CUaBAgQw.js
+var tsrStartManifest = () => ({ routes: {
+	__root__: {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/__root.tsx",
+		children: [
+			"/",
+			"/$",
+			"/boglanish",
+			"/faq",
+			"/login",
+			"/maxfiylik",
+			"/mening-taklifnomalarim",
+			"/narxlar",
+			"/qanday-ishlaydi",
+			"/shartlar",
+			"/create/$templateId",
+			"/dizayn/$slug",
+			"/invitation/$id",
+			"/preview/$id",
+			"/templates/$category",
+			"/templates/",
+			"/api/auth/$"
+		],
+		preloads: [
+			"/assets/index-eAxuolON.js",
+			"/assets/react-SIfiwpqq.js",
+			"/assets/invitations-Bog5w9qG.js",
+			"/assets/link-CRhvqniy.js",
+			"/assets/lazyRouteComponent-B0xb5Kmi.js",
+			"/assets/redirect-DtIAAt0y.js",
+			"/assets/with-selector-B3kjeGa9.js",
+			"/assets/preload-helper-Czpn1I53.js",
+			"/assets/templates-BeGoyITF.js"
+		],
+		scripts: [{ attrs: {
+			type: "module",
+			async: !0,
+			src: "/assets/index-eAxuolON.js"
+		} }]
+	},
+	"/": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/index.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/routes-DV1BErOl.js",
+			"/assets/sections-CK1NZ9qe.js",
+			"/assets/renderer-D58JRwPC.js",
+			"/assets/navbar-6kUVlV4y.js",
+			"/assets/button-C9GdTla-.js"
+		]
+	},
+	"/$": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/$.tsx",
+		children: void 0,
+		preloads: ["/assets/_-hhMuxUJp.js", "/assets/button-C9GdTla-.js"]
+	},
+	"/boglanish": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/boglanish.tsx",
+		children: void 0,
+		preloads: ["/assets/boglanish-DQybDPBf.js", "/assets/page-shell-DTkd_Tkq.js"]
+	},
+	"/faq": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/faq.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/faq-C1pTkSe3.js",
+			"/assets/sections-CK1NZ9qe.js",
+			"/assets/page-shell-DTkd_Tkq.js"
+		]
+	},
+	"/login": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/login.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/login-bTzg1ihF.js",
+			"/assets/client-BVku107y.js",
+			"/assets/button-C9GdTla-.js"
+		]
+	},
+	"/maxfiylik": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/maxfiylik.tsx",
+		children: void 0,
+		preloads: ["/assets/maxfiylik-D9sybDCw.js", "/assets/page-shell-DTkd_Tkq.js"]
+	},
+	"/mening-taklifnomalarim": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/mening-taklifnomalarim.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/mening-taklifnomalarim-DALLFToB.js",
+			"/assets/navbar-6kUVlV4y.js",
+			"/assets/use-current-user-DuzKEVgA.js",
+			"/assets/button-C9GdTla-.js",
+			"/assets/page-shell-DTkd_Tkq.js"
+		]
+	},
+	"/narxlar": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/narxlar.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/narxlar-CR1qxAM0.js",
+			"/assets/sections-CK1NZ9qe.js",
+			"/assets/page-shell-DTkd_Tkq.js"
+		]
+	},
+	"/qanday-ishlaydi": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/qanday-ishlaydi.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/qanday-ishlaydi-DxfeC4SW.js",
+			"/assets/sections-CK1NZ9qe.js",
+			"/assets/page-shell-DTkd_Tkq.js"
+		]
+	},
+	"/shartlar": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/shartlar.tsx",
+		children: void 0,
+		preloads: ["/assets/shartlar-DOH-A6CE.js", "/assets/page-shell-DTkd_Tkq.js"]
+	},
+	"/create/$templateId": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/create/$templateId.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/_templateId-DE-FmBDY.js",
+			"/assets/useNavigate-BGVgdckm.js",
+			"/assets/renderer-D58JRwPC.js",
+			"/assets/music-2-BTb6SV2f.js",
+			"/assets/use-current-user-DuzKEVgA.js",
+			"/assets/button-C9GdTla-.js",
+			"/assets/input-IrwEO8La.js",
+			"/assets/draft-66Lf9zpF.js"
+		]
+	},
+	"/dizayn/$slug": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/dizayn/$slug.tsx",
+		children: void 0,
+		preloads: ["/assets/_slug-7IE3Gpnh.js", "/assets/useNavigate-BGVgdckm.js"]
+	},
+	"/invitation/$id": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/invitation/$id.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/_id-BDgQW0Bx.js",
+			"/assets/renderer-D58JRwPC.js",
+			"/assets/button-C9GdTla-.js",
+			"/assets/input-IrwEO8La.js"
+		]
+	},
+	"/preview/$id": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/preview/$id.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/_id-C4KnmrCB.js",
+			"/assets/renderer-D58JRwPC.js",
+			"/assets/button-C9GdTla-.js",
+			"/assets/draft-66Lf9zpF.js"
+		]
+	},
+	"/templates/$category": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/templates/$category.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/_category-H027MfOh.js",
+			"/assets/button-C9GdTla-.js",
+			"/assets/page-shell-DTkd_Tkq.js",
+			"/assets/template-card-OlGK44WL.js"
+		]
+	},
+	"/templates/": {
+		filePath: "C:/Users/shavkat/Desktop/Test/src/routes/templates/index.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/templates-BBMjPbyN.js",
+			"/assets/page-shell-DTkd_Tkq.js",
+			"/assets/template-card-OlGK44WL.js"
+		]
+	}
+} });
+//#endregion
+export { tsrStartManifest };

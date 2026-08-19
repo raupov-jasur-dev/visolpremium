@@ -1,0 +1,1 @@
+import{n as e}from"./with-selector-B3kjeGa9.js";import{a as t}from"./sections-CK1NZ9qe.js";import{t as n}from"./page-shell-DTkd_Tkq.js";var r=e(),i=()=>(0,r.jsx)(n,{children:(0,r.jsx)(t,{})});export{i as component};

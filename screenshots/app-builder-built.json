@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "VisolPremium — Premium taklifnomalar va tabriknomalar",
+      "hasCanvas": false,
+      "bodyTextLen": 6277,
+      "bodyTextHash": "31b59903945a2d6c388f272b67b04f916855f68d0909ac8eb9d1e6f6e043a5ef",
+      "bodyTextPrefix": "VisolPremium Bosh sahifa Dizaynlar Qanday ishlaydi? Narxlar FAQ ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "VisolPremium — Premium taklifnomalar va tabriknomalar",
+      "hasCanvas": false,
+      "bodyTextLen": 5840,
+      "bodyTextHash": "82f77daa85bc1f6bfcccab5eca9a5b9b5bcb2369cdfc7ed93a4aa9676d33ccc7",
+      "bodyTextPrefix": "VisolPremium VISOLPREMIUM Har bir lahza o'z hikoyasiga loyiq. To",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

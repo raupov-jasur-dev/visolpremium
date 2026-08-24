@@ -1,0 +1,1 @@
+import{n as e}from"./with-selector-B3kjeGa9.js";import{r as t,t as n}from"./navbar-BP_wQdgN.js";var r=e();function i({children:e,overlayNav:i=!1}){return(0,r.jsxs)(`div`,{className:`min-h-screen bg-ivory text-ink`,children:[(0,r.jsx)(n,{variant:i?`overlay`:`solid`}),(0,r.jsx)(`div`,{className:i?``:`pt-24`,children:e}),(0,r.jsx)(t,{})]})}export{i as t};

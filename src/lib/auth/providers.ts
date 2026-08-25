@@ -10,6 +10,3 @@ export type AuthProvider = {
 export const AUTH_PROVIDERS: readonly AuthProvider[] = [
   { providerId: "google", label: "Google" },
 ];
-
-// Backwards-compatible alias for existing UI imports.
-export const GROK_PROVIDERS = AUTH_PROVIDERS;

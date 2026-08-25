@@ -11,15 +11,15 @@ export function AuthSlot({ light = false }: { light?: boolean }) {
     return (
       <div className="flex items-center gap-3">
         <Link
-          to="/mening-taklifnomalarim"
-          className={
-            light
-              ? "hidden text-sm text-ivory/85 underline-offset-4 hover:underline md:inline"
-              : "hidden text-sm text-ink/80 underline-offset-4 hover:text-ink hover:underline md:inline"
-          }
-        >
-          Meninglarim
-        </Link>
+  to="/mening-taklifnomalarim"
+  className={
+    light
+      ? "text-sm text-ivory/85 underline-offset-4 hover:underline"
+      : "text-sm text-ink/80 underline-offset-4 hover:text-ink hover:underline"
+  }
+>
+  Taklifnomalarim
+</Link>
         <UserButton />
       </div>
     );
